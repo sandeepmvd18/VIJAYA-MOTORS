@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vijaya Motors – Bethamangala</title>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Instrument+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080808;
+      --surface: #0f0f0f;
+      --surface2: #141414;
+      --border: rgba(255,255,255,0.07);
+      --border-strong: rgba(255,255,255,0.14);
+      --gold: #c9a84c;
+      --gold-light: #e8c96a;
+      --gold-dim: rgba(201,168,76,0.15);
+      --red: #e03a2f;
+      --green: #22c55e;
+      --text: #f2ede4;
+      --muted: #6a6a6a;
+      --muted2: #4a4a4a;
+      --font-d: 'Oswald', sans-serif;
+      --font-b: 'Instrument Sans', sans-serif;
+      --radius: 3px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-b);
+      font-weight: 300;
+      overflow-x: hidden;
+      cursor: default;
+    }
+
+    /* scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 2px; }
+
+    /* ── LOADER ── */
+    #loader {
+      position: fixed; inset: 0; z-index: 9999;
+      background: var(--bg);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 1.5rem;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+    #loader.hidden { opacity: 0; visibility: hidden; }
+    .loader-logo {
+      font-family: var(--font-d);
+      font-size: 3rem;
+      letter-spacing: 6px;
+      color: var(--gold);
+    }
+    .loader-bar-wrap {
+      width: 200px; height: 2px;
+      background: var(--border);
+      border-radius: 1px;
+      overflow: hidden;
+    }
+    .loader-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), var(--gold-light));
+      width: 0%;
+      animation: loadFill 1.4s ease forwards;
+    }
+    @keyframes loadFill { to { width: 100%; } }
+
+    /* ── CURSOR ── */
+    .cursor {
+      position: fixed; width: 10px; height: 10px;
+      border-radius: 50%; background: var(--gold);
+      pointer-events: none; z-index: 9998;
+      transition: transform 0.1s ease;
+      mix-blend-mode: difference;
+    }
+    .cursor-ring {
+      position: fixed; width: 36px; height: 36px;
+      border-radius: 50%; border: 1px solid rgba(201,168,76,0.5);
+      pointer-events: none; z-index: 9997;
+      transition: transform 0.25s ease, width 0.2s, height 0.2s, border-color 0.2s;
+    }
+    body:has(a:hover) .cursor-ring,
+    body:has(button:hover) .cursor-ring { width: 52px; height: 52px; border-color: var(--gold); }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem 5vw;
+      transition: background 0.3s, padding 0.3s;
+    }
+    nav.scrolled {
+      background: rgba(8,8,8,0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0.7rem 5vw;
+    }
+    .nav-logo {
+      font-family: var(--font-d);
+      font-size: 1.6rem;
+      letter-spacing: 3px;
+      color: var(--gold);
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--text); }
+    .nav-links { display: flex; align-items: center; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.78rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      transition: color 0.2s;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute; bottom: -4px; left: 0;
+      width: 0; height: 1px;
+      background: var(--gold);
+      transition: width 0.3s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+    .nav-links a:hover::after { width: 100%; }
+    .nav-cta {
+      background: var(--gold) !important;
+      color: #000 !important;
+      padding: 0.5rem 1.4rem !important;
+      font-weight: 500 !important;
+      letter-spacing: 1px !important;
+      border-radius: var(--radius);
+    }
+    .nav-cta::after { display: none !important; }
+    .hamburger {
+      display: none;
+      flex-direction: column; gap: 5px;
+      cursor: pointer; padding: 4px;
+    }
+    .hamburger span {
+      display: block; width: 24px; height: 2px;
+      background: var(--text); border-radius: 1px;
+      transition: transform 0.3s, opacity 0.3s;
+    }
+    .mobile-menu {
+      display: none;
+      position: fixed; inset: 0; z-index: 400;
+      background: rgba(8,8,8,0.98);
+      flex-direction: column; align-items: center; justify-content: center;
+      gap: 2.5rem;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      font-family: var(--font-d);
+      font-size: 2.5rem;
+      letter-spacing: 3px;
+      color: var(--text);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .mobile-menu a:hover { color: var(--gold); }
+    .mobile-close {
+      position: absolute; top: 1.2rem; right: 5vw;
+      font-size: 1.8rem; color: var(--muted);
+      cursor: pointer; background: none; border: none;
+      transition: color 0.2s;
+    }
+    .mobile-close:hover { color: var(--gold); }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 0 5vw;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-noise {
+      position: absolute; inset: 0; z-index: 0;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 200px;
+    }
+    .hero-grid {
+      position: absolute; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 80%);
+    }
+    .hero-glow {
+      position: absolute;
+      width: 700px; height: 700px;
+      right: -100px; top: 50%;
+      transform: translateY(-50%);
+      background: radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .hero-accent-line {
+      position: absolute; left: 5vw; top: 0; bottom: 0;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, var(--gold) 30%, var(--gold) 70%, transparent);
+      opacity: 0.2;
+    }
+    .hero-content { position: relative; z-index: 1; padding-top: 8rem; }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: var(--gold-dim);
+      border: 1px solid rgba(201,168,76,0.3);
+      padding: 0.35rem 0.9rem;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold-light);
+      margin-bottom: 2rem;
+      opacity: 0; animation: fadeUp 0.7s 1.5s forwards;
+    }
+    .badge-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .hero-h1 {
+      font-family: var(--font-d);
+      font-size: clamp(5.5rem, 16vw, 14rem);
+      line-height: 0.88;
+      letter-spacing: 2px;
+      font-weight: 700;
+      opacity: 0; animation: fadeUp 0.8s 1.6s forwards;
+    }
+    .hero-h1 .line2 { color: var(--gold); display: block; }
+    .hero-h1 .outline {
+      -webkit-text-stroke: 1px rgba(242,237,228,0.2);
+      color: transparent;
+    }
+
+    .hero-tagline {
+      font-size: clamp(0.85rem, 1.2vw, 1.05rem);
+      color: var(--muted);
+      max-width: 420px;
+      line-height: 1.8;
+      margin-top: 2rem;
+      opacity: 0; animation: fadeUp 0.8s 1.8s forwards;
+    }
+
+    .hero-actions {
+      display: flex; gap: 1rem; margin-top: 2.5rem; flex-wrap: wrap;
+      opacity: 0; animation: fadeUp 0.8s 2s forwards;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.85rem 2rem;
+      font-family: var(--font-b);
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      border-radius: var(--radius);
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-gold { background: var(--gold); color: #000; }
+    .btn-gold:hover { background: var(--gold-light); box-shadow: 0 8px 28px rgba(201,168,76,0.35); }
+    .btn-wa { background: #1fad55; color: #fff; }
+    .btn-wa:hover { background: #22c55e; box-shadow: 0 8px 28px rgba(34,197,94,0.3); }
+    .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border-strong); }
+    .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-sm { padding: 0.6rem 1.4rem; font-size: 0.8rem; }
+
+    /* ── TICKER ── */
+    .ticker-wrap {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+      padding: 0.8rem 0;
+      background: var(--surface);
+      position: relative; z-index: 1;
+    }
+    .ticker {
+      display: flex; gap: 0;
+      animation: tickerScroll 30s linear infinite;
+      width: max-content;
+    }
+    .ticker:hover { animation-play-state: paused; }
+    .ticker-item {
+      display: flex; align-items: center; gap: 0.8rem;
+      padding: 0 2.5rem;
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .ticker-item .dot { color: var(--gold); font-size: 0.6rem; }
+    @keyframes tickerScroll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    /* ── STATS ── */
+    .stats-section {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .stat-item {
+      padding: 3rem 2.5rem;
+      border-right: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+      transition: background 0.3s;
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-item:hover { background: var(--surface); }
+    .stat-item::before {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--gold);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s ease;
+    }
+    .stat-item:hover::before { transform: scaleX(1); }
+    .stat-num {
+      font-family: var(--font-d);
+      font-size: 3.5rem;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+      letter-spacing: 1px;
+    }
+    .stat-label {
+      font-size: 0.72rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 0.5rem;
+    }
+
+    /* ── SECTION COMMON ── */
+    .section-tag {
+      font-size: 0.68rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.8rem;
+      display: flex; align-items: center; gap: 0.8rem;
+    }
+    .section-tag::before {
+      content: '';
+      display: block; width: 30px; height: 1px;
+      background: var(--gold);
+    }
+    .section-h {
+      font-family: var(--font-d);
+      font-size: clamp(2.8rem, 6vw, 5.5rem);
+      font-weight: 700;
+      line-height: 0.92;
+      letter-spacing: 1px;
+    }
+
+    /* ── VEHICLES ── */
+    #vehicles {
+      padding: 8rem 5vw;
+    }
+    .vehicles-top {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      margin-bottom: 3.5rem;
+      flex-wrap: wrap; gap: 1.5rem;
+    }
+    .filter-tabs {
+      display: flex; gap: 0.5rem; flex-wrap: wrap;
+    }
+    .filter-tab {
+      padding: 0.45rem 1.1rem;
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      border-radius: var(--radius);
+      transition: all 0.2s;
+      font-family: var(--font-b);
+    }
+    .filter-tab:hover, .filter-tab.active {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: var(--gold-dim);
+    }
+
+    .vehicles-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+    .v-card {
+      background: var(--surface);
+      padding: 2.2rem;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.3s;
+      cursor: pointer;
+    }
+    .v-card:hover { background: var(--surface2); }
+    .v-card::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(201,168,76,0.05) 0%, transparent 60%);
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .v-card:hover::after { opacity: 1; }
+    .v-card-num {
+      font-family: var(--font-d);
+      font-size: 5rem;
+      font-weight: 700;
+      color: rgba(201,168,76,0.06);
+      position: absolute;
+      top: 1rem; right: 1.5rem;
+      line-height: 1;
+      letter-spacing: -2px;
+      pointer-events: none;
+    }
+    .v-card-icon { font-size: 2rem; margin-bottom: 1.2rem; display: block; }
+    .v-card-type {
+      font-size: 0.62rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.4rem;
+    }
+    .v-card-title {
+      font-family: var(--font-d);
+      font-size: 1.9rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      margin-bottom: 0.6rem;
+    }
+    .v-card-desc {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .v-card-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 1.5rem;
+      padding-top: 1.2rem;
+      border-top: 1px solid var(--border);
+    }
+    .v-badge {
+      font-size: 0.65rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 0.25rem 0.75rem;
+      border-radius: 2px;
+    }
+    .v-badge-red { color: var(--red); border: 1px solid rgba(224,58,47,0.4); background: rgba(224,58,47,0.07); }
+    .v-badge-green { color: var(--green); border: 1px solid rgba(34,197,94,0.4); background: rgba(34,197,94,0.07); }
+    .v-badge-gold { color: var(--gold); border: 1px solid rgba(201,168,76,0.4); background: var(--gold-dim); }
+    .v-arrow {
+      width: 28px; height: 28px;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+      transition: all 0.2s;
+    }
+    .v-card:hover .v-arrow { border-color: var(--gold); color: var(--gold); transform: rotate(45deg); }
+
+    /* ── BRANDS ── */
+    .brands-strip {
+      margin-top: 2.5rem;
+      padding: 1.8rem 2.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; gap: 3rem; flex-wrap: wrap;
+    }
+    .brands-label {
+      font-size: 0.62rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted2);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .brands-list { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+    .brand-pill {
+      font-family: var(--font-d);
+      font-size: 1rem;
+      letter-spacing: 2px;
+      padding: 0.5rem 1.2rem;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      transition: all 0.25s;
+      border-radius: var(--radius);
+      cursor: default;
+    }
+    .brand-pill:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+    .brand-pill.hl { border-color: rgba(201,168,76,0.4); color: var(--gold); }
+
+    /* ── EMI CALCULATOR ── */
+    #emi {
+      padding: 8rem 5vw;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .emi-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      margin-top: 4rem;
+      align-items: start;
+    }
+    .emi-form { display: flex; flex-direction: column; gap: 2rem; }
+    .emi-field label {
+      display: block;
+      font-size: 0.72rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.8rem;
+    }
+    .emi-field-row {
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .emi-field input[type="range"] {
+      flex: 1;
+      -webkit-appearance: none;
+      height: 3px;
+      background: var(--border-strong);
+      border-radius: 2px;
+      outline: none;
+    }
+    .emi-field input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--gold);
+      cursor: pointer;
+      border: 3px solid var(--bg);
+      box-shadow: 0 0 0 1px var(--gold);
+    }
+    .emi-val {
+      font-family: var(--font-d);
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: var(--gold);
+      min-width: 80px;
+      text-align: right;
+    }
+    .emi-result {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 2.5rem;
+      border-radius: var(--radius);
+    }
+    .emi-result-label {
+      font-size: 0.68rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.6rem;
+    }
+    .emi-result-num {
+      font-family: var(--font-d);
+      font-size: 3.8rem;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+      letter-spacing: 1px;
+    }
+    .emi-breakdown {
+      margin-top: 2rem;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1px; background: var(--border);
+    }
+    .emi-bd-item {
+      background: var(--surface);
+      padding: 1rem;
+    }
+    .emi-bd-label { font-size: 0.68rem; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+    .emi-bd-val { font-family: var(--font-d); font-size: 1.3rem; color: var(--text); margin-top: 0.3rem; }
+    .emi-donut-wrap {
+      margin-top: 2rem;
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .emi-donut-wrap svg { overflow: visible; }
+    .emi-donut-center {
+      position: absolute;
+      text-align: center;
+      pointer-events: none;
+    }
+    .emi-donut-center .dc-label { font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+    .emi-donut-center .dc-pct { font-family: var(--font-d); font-size: 2rem; color: var(--gold); }
+    .emi-wa-btn {
+      margin-top: 1.5rem;
+      width: 100%;
+      justify-content: center;
+    }
+
+    /* ── WHY US ── */
+    #why {
+      padding: 8rem 5vw;
+      border-top: 1px solid var(--border);
+    }
+    .why-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 6rem;
+      margin-top: 4rem;
+      align-items: start;
+    }
+    .why-left { position: sticky; top: 7rem; }
+    .why-big-num {
+      font-family: var(--font-d);
+      font-size: 9rem;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+      letter-spacing: -2px;
+    }
+    .why-big-sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+      letter-spacing: 1px;
+      line-height: 1.8;
+      margin-top: 1rem;
+      max-width: 280px;
+    }
+    .why-features { display: flex; flex-direction: column; gap: 0; }
+    .feature-row {
+      display: grid; grid-template-columns: 60px 1fr;
+      gap: 1.5rem; align-items: start;
+      padding: 2rem 0;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.2s;
+      position: relative;
+    }
+    .feature-row:first-child { border-top: 1px solid var(--border); }
+    .feature-row::before {
+      content: '';
+      position: absolute; left: 0; top: 0; bottom: 0;
+      width: 2px;
+      background: var(--gold);
+      transform: scaleY(0);
+      transform-origin: top;
+      transition: transform 0.3s;
+    }
+    .feature-row:hover::before { transform: scaleY(1); }
+    .feature-row:hover { background: rgba(201,168,76,0.03); padding-left: 1rem; }
+    .feature-num {
+      font-family: var(--font-d);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--muted2);
+      line-height: 1;
+      padding-top: 3px;
+    }
+    .feature-body h4 { font-size: 1rem; font-weight: 500; margin-bottom: 0.4rem; }
+    .feature-body p { font-size: 0.82rem; color: var(--muted); line-height: 1.7; }
+
+    /* ── TESTIMONIALS ── */
+    #reviews {
+      padding: 8rem 5vw;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .reviews-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-top: 3.5rem;
+    }
+    .review-card {
+      background: var(--bg);
+      padding: 2rem;
+      transition: background 0.3s;
+    }
+    .review-card:hover { background: #0d0d0d; }
+    .review-stars { color: var(--gold); font-size: 0.85rem; letter-spacing: 2px; margin-bottom: 1.2rem; }
+    .review-text {
+      font-size: 0.88rem;
+      color: var(--text);
+      line-height: 1.75;
+      font-style: italic;
+      margin-bottom: 1.5rem;
+      border-left: 2px solid rgba(201,168,76,0.3);
+      padding-left: 1rem;
+    }
+    .review-author { display: flex; align-items: center; gap: 0.8rem; }
+    .review-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--gold-dim);
+      border: 1px solid rgba(201,168,76,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-d);
+      font-size: 1rem;
+      color: var(--gold);
+    }
+    .review-name { font-size: 0.85rem; font-weight: 500; }
+    .review-loc { font-size: 0.72rem; color: var(--muted); margin-top: 0.1rem; }
+
+    /* ── CONTACT ── */
+    #contact {
+      padding: 8rem 5vw;
+      border-top: 1px solid var(--border);
+    }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 5rem;
+      margin-top: 4rem;
+      align-items: start;
+    }
+    .contact-info-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1px; background: var(--border);
+      border: 1px solid var(--border);
+      margin-bottom: 2rem;
+    }
+    .info-tile {
+      background: var(--surface);
+      padding: 1.5rem;
+      transition: background 0.2s;
+    }
+    .info-tile:hover { background: var(--surface2); }
+    .info-tile-label {
+      font-size: 0.65rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.6rem;
+    }
+    .info-tile-val { font-size: 0.88rem; color: var(--text); line-height: 1.6; }
+    .info-tile-val a { color: var(--text); text-decoration: none; transition: color 0.2s; }
+    .info-tile-val a:hover { color: var(--gold); }
+    .phone-links { display: flex; flex-direction: column; gap: 0.3rem; }
+    .phone-links a { font-size: 0.85rem; color: var(--gold); text-decoration: none; transition: color 0.2s; }
+    .phone-links a:hover { color: var(--gold-light); }
+
+    .map-embed {
+      width: 100%; height: 200px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 0.8rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      border-radius: var(--radius);
+      position: relative;
+      overflow: hidden;
+    }
+    .map-embed::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        0deg, transparent, transparent 30px,
+        rgba(255,255,255,0.015) 30px, rgba(255,255,255,0.015) 31px
+      ),
+      repeating-linear-gradient(
+        90deg, transparent, transparent 30px,
+        rgba(255,255,255,0.015) 30px, rgba(255,255,255,0.015) 31px
+      );
+    }
+    .map-embed-content { position: relative; text-align: center; }
+    .map-embed a { color: var(--gold); text-decoration: none; font-size: 0.78rem; }
+    .map-embed a:hover { text-decoration: underline; }
+
+    .cta-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-panel::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold));
+    }
+    .cta-panel h3 {
+      font-family: var(--font-d);
+      font-size: 2.8rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      line-height: 1;
+      margin-bottom: 0.8rem;
+    }
+    .cta-panel p { font-size: 0.85rem; color: var(--muted); line-height: 1.7; margin-bottom: 2rem; }
+    .cta-btn-stack { display: flex; flex-direction: column; gap: 0.8rem; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .footer-top {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      gap: 3rem;
+      padding: 4rem 5vw;
+      border-bottom: 1px solid var(--border);
+    }
+    .footer-logo {
+      font-family: var(--font-d);
+      font-size: 1.8rem;
+      letter-spacing: 3px;
+      color: var(--gold);
+      text-decoration: none;
+    }
+    .footer-logo span { color: var(--text); }
+    .footer-tagline {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.8rem;
+      line-height: 1.7;
+      max-width: 220px;
+    }
+    .footer-col h4 {
+      font-size: 0.68rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.2rem;
+    }
+    .footer-links { display: flex; flex-direction: column; gap: 0.6rem; }
+    .footer-links a {
+      font-size: 0.83rem;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--text); }
+    .footer-bottom {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.2rem 5vw;
+      font-size: 0.75rem;
+      color: var(--muted2);
+      flex-wrap: wrap; gap: 1rem;
+    }
+
+    /* ── FLOATING ── */
+    .float-btns {
+      position: fixed; bottom: 2rem; right: 2rem;
+      display: flex; flex-direction: column; gap: 0.8rem;
+      z-index: 300;
+    }
+    .float-btn {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+      text-decoration: none;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: none; cursor: pointer;
+      backdrop-filter: blur(8px);
+    }
+    .float-btn:hover { transform: scale(1.1) translateY(-2px); }
+    .fb-wa { background: #1fad55; color: #fff; }
+    .fb-wa:hover { box-shadow: 0 8px 28px rgba(34,197,94,0.5); }
+    .fb-call { background: var(--gold); color: #000; }
+    .fb-call:hover { box-shadow: 0 8px 28px rgba(201,168,76,0.5); }
+
+    /* ── SCROLL TO TOP ── */
+    #stt {
+      position: fixed; bottom: 2rem; left: 2rem;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; color: var(--muted);
+      cursor: pointer; z-index: 300;
+      opacity: 0; pointer-events: none;
+      transition: all 0.3s;
+      text-decoration: none;
+    }
+    #stt.visible { opacity: 1; pointer-events: auto; }
+    #stt:hover { border-color: var(--gold); color: var(--gold); transform: translateY(-2px); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .reveal {
+      opacity: 0; transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+      .stats-section { grid-template-columns: repeat(2, 1fr); }
+      .stat-item:nth-child(2) { border-right: none; }
+      .stat-item:nth-child(3), .stat-item:nth-child(4) { border-top: 1px solid var(--border); }
+      .vehicles-grid { grid-template-columns: 1fr 1fr; }
+      .emi-grid { grid-template-columns: 1fr; gap: 3rem; }
+      .why-grid { grid-template-columns: 1fr; gap: 3rem; }
+      .why-left { position: static; }
+      .reviews-grid { grid-template-columns: 1fr; }
+      .contact-grid { grid-template-columns: 1fr; gap: 3rem; }
+      .footer-top { grid-template-columns: 1fr 1fr; gap: 2rem; }
+      .cursor, .cursor-ring { display: none; }
+    }
+    @media (max-width: 600px) {
+      .vehicles-grid { grid-template-columns: 1fr; }
+      .contact-info-grid { grid-template-columns: 1fr; }
+      .footer-top { grid-template-columns: 1fr; }
+      .stats-section { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-logo">VIJAYA <span style="color:var(--text)">MOTORS</span></div>
+  <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
+  <div style="font-size:0.7rem;letter-spacing:3px;text-transform:uppercase;color:var(--muted)">Bethamangala</div>
+</div>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-close" id="mobileClose">✕</button>
+  <a href="#vehicles" onclick="closeMobile()">Vehicles</a>
+  <a href="#emi" onclick="closeMobile()">EMI Calc</a>
+  <a href="#why" onclick="closeMobile()">Why Us</a>
+  <a href="#reviews" onclick="closeMobile()">Reviews</a>
+  <a href="#contact" onclick="closeMobile()">Contact</a>
+  <a href="https://wa.me/919686450179" target="_blank" style="color:var(--green)">WhatsApp</a>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="nav-logo">VIJAYA <span>MOTORS</span></a>
+  <ul class="nav-links">
+    <li><a href="#vehicles">Vehicles</a></li>
+    <li><a href="#emi">EMI Calc</a></li>
+    <li><a href="#why">Why Us</a></li>
+    <li><a href="#reviews">Reviews</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="https://wa.me/919686450179?text=Hi%2C%20I%20am%20interested%20in%20a%20bike" target="_blank" class="nav-cta">WhatsApp Us</a></li>
+  </ul>
+  <div class="hamburger" id="hamburger">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-noise"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-accent-line"></div>
+  <div class="hero-content">
+    <div class="hero-badge"><span class="badge-dot"></span>Open Today · 9 AM – 7 PM</div>
+    <h1 class="hero-h1">
+      RIDE<br/>
+      <span class="line2">YOUR</span>
+      <span class="outline">DREAM.</span>
+    </h1>
+    <p class="hero-tagline">
+      Bethamangala's most trusted two-wheeler showroom. New bikes & scooters from Honda, Hero and more — with easy loans, insurance support, and zero-pressure pricing.
+    </p>
+    <div class="hero-actions">
+      <a href="https://wa.me/919686450179?text=Hi%2C%20I%20want%20to%20book%20a%20test%20ride" target="_blank" class="btn btn-wa">💬 Book Test Ride</a>
+      <a href="#emi" class="btn btn-gold">Calculate EMI →</a>
+      <a href="tel:+919449668895" class="btn btn-ghost">📞 Call Now</a>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker" id="ticker">
+    <div class="ticker-item"><span class="dot">◆</span> Honda Activa 7G In Stock</div>
+    <div class="ticker-item"><span class="dot">◆</span> Hero Splendor+ New Model</div>
+    <div class="ticker-item"><span class="dot">◆</span> Zero Down Payment Options</div>
+    <div class="ticker-item"><span class="dot">◆</span> Free RC Registration</div>
+    <div class="ticker-item"><span class="dot">◆</span> Same Day Insurance</div>
+    <div class="ticker-item"><span class="dot">◆</span> Royal Enfield On Booking</div>
+    <div class="ticker-item"><span class="dot">◆</span> Used Bikes Available Now</div>
+    <div class="ticker-item"><span class="dot">◆</span> Honda Shine 125 In Stock</div>
+    <!-- duplicate for seamless loop -->
+    <div class="ticker-item"><span class="dot">◆</span> Honda Activa 7G In Stock</div>
+    <div class="ticker-item"><span class="dot">◆</span> Hero Splendor+ New Model</div>
+    <div class="ticker-item"><span class="dot">◆</span> Zero Down Payment Options</div>
+    <div class="ticker-item"><span class="dot">◆</span> Free RC Registration</div>
+    <div class="ticker-item"><span class="dot">◆</span> Same Day Insurance</div>
+    <div class="ticker-item"><span class="dot">◆</span> Royal Enfield On Booking</div>
+    <div class="ticker-item"><span class="dot">◆</span> Used Bikes Available Now</div>
+    <div class="ticker-item"><span class="dot">◆</span> Honda Shine 125 In Stock</div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-section reveal">
+  <div class="stat-item">
+    <div class="stat-num" data-count="500">0</div>
+    <div class="stat-label">Bikes Sold</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" data-count="10">0</div>
+    <div class="stat-label">Years Experience</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" data-count="98">0</div>
+    <div class="stat-label">% Customer Satisfaction</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num" data-count="6">0</div>
+    <div class="stat-label">Top Brands Available</div>
+  </div>
+</div>
+
+<!-- VEHICLES -->
+<section id="vehicles">
+  <div class="vehicles-top reveal">
+    <div>
+      <p class="section-tag">Our Collection</p>
+      <h2 class="section-h">WHAT WE<br/>OFFER</h2>
+    </div>
+    <div class="filter-tabs">
+      <button class="filter-tab active" onclick="filterCards('all', this)">All</button>
+      <button class="filter-tab" onclick="filterCards('new', this)">New Bikes</button>
+      <button class="filter-tab" onclick="filterCards('service', this)">Services</button>
+      <button class="filter-tab" onclick="filterCards('used', this)">Pre-Owned</button>
+    </div>
+  </div>
+
+  <div class="vehicles-grid" id="vehiclesGrid">
+    <div class="v-card" data-cat="new">
+      <span class="v-card-num">01</span>
+      <span class="v-card-icon">🏍️</span>
+      <p class="v-card-type">New Bikes</p>
+      <h3 class="v-card-title">Honda</h3>
+      <p class="v-card-desc">Activa 7G, Shine 125, SP 125, Unicorn & more. Latest Honda two-wheelers ready for delivery.</p>
+      <div class="v-card-footer">
+        <span class="v-badge v-badge-red">In Stock</span>
+        <span class="v-arrow">→</span>
+      </div>
+    </div>
+    <div class="v-card" data-cat="new">
+      <span class="v-card-num">02</span>
+      <span class="v-card-icon">🏍️</span>
+      <p class="v-card-type">New Bikes</p>
+      <h3 class="v-card-title">Hero</h3>
+      <p class="v-card-desc">Splendor+, HF Deluxe, Passion, Glamour, Xtreme & more. Hero bikes for every ride and budget.</p>
+      <div class="v-card-footer">
+        <span class="v-badge v-badge-red">In Stock</span>
+        <span class="v-arrow">→</span>
+      </div>
+    </div>
+    <div class="v-card" data-cat="new">
+      <span class="v-card-num">03</span>
+      <span class="v-card-icon">🛵</span>
+      <p class="v-card-type">On Booking</p>
+      <h3 class="v-card-title">More Brands</h3>
+      <p class="v-card-desc">TVS, Bajaj, Royal Enfield & others available on order. Book now, ride soon.</p>
+      <div class="v-card-footer">
+        <span class="v-badge v-badge-gold">Book Now</span>
+        <span class="v-arrow">→</span>
+      </div>
+    </div>
+    <div class="v-card" data-cat="service">
+      <span class="v-card-num">04</span>
+      <span class="v-card-icon">🏦</span>
+      <p class="v-card-type">Finance</p>
+      <h3 class="v-card-title">Easy Loans</h3>
+      <p class="v-card-desc">Low EMI with quick bank approvals. We work with leading banks & NBFCs to get you the best rate.</p>
+      <div class="v-card-footer">
+        <span class="v-badge v-badge-green">Zero Hassle</span>
+        <span class="v-arrow">→</span>
+      </div>
+    </div>
+    <div class="v-card" data-cat="service">
+      <span class="v-card-num">05</span>
+      <span class="v-card-icon">🛡️</span>
+      <p class="v-card-type">Insurance</p>
+      <h3 class="v-card-title">Bike Insurance</h3>
+      <p class="v-card-desc">Get insured right here on the same day. Comprehensive & third-party plans available.</p>
+      <div class="v-card-footer">
+        <span class="v-badge v-badge-green">Same Day</span>
+        <span class="v-arrow">→</span>
+      </div>
+    </div>
+    <div class="v-card" data-cat="used">
+      <span class="v-card-num">06</span>
+      <span class="v-card-icon">✅</span>
+      <p class="v-card-type">Pre-Owned</p>
+      <h3 class="v-card-title">Second Hand</h3>
+      <p class="v-card-desc">Certified used two-wheelers at unbeatable prices. All inspected, documented & ready to ride.</p>
+      <div class="v-card-footer">
+        <span class="v-badge v-badge-gold">Best Value</span>
+        <span class="v-arrow">→</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="brands-strip reveal">
+    <div class="brands-label">Brands We Carry</div>
+    <div class="brands-list">
+      <div class="brand-pill hl">Honda</div>
+      <div class="brand-pill hl">Hero</div>
+      <div class="brand-pill">TVS</div>
+      <div class="brand-pill">Bajaj</div>
+      <div class="brand-pill">Royal Enfield</div>
+      <div class="brand-pill" style="color:var(--muted2);font-size:0.85rem;">+ More on Booking</div>
+    </div>
+  </div>
+</section>
+
+<!-- EMI CALCULATOR -->
+<section id="emi">
+  <div class="reveal">
+    <p class="section-tag">Finance Tool</p>
+    <h2 class="section-h">EMI<br/>CALCULATOR</h2>
+  </div>
+  <div class="emi-grid">
+    <div class="emi-form reveal">
+      <div class="emi-field">
+        <label>Bike Price (₹)</label>
+        <div class="emi-field-row">
+          <input type="range" min="30000" max="300000" step="5000" value="80000" id="emiPrice" oninput="calcEMI()">
+          <span class="emi-val" id="emiPriceVal">₹80,000</span>
+        </div>
+      </div>
+      <div class="emi-field">
+        <label>Down Payment (₹)</label>
+        <div class="emi-field-row">
+          <input type="range" min="0" max="100000" step="2000" value="10000" id="emiDown" oninput="calcEMI()">
+          <span class="emi-val" id="emiDownVal">₹10,000</span>
+        </div>
+      </div>
+      <div class="emi-field">
+        <label>Loan Tenure (Months)</label>
+        <div class="emi-field-row">
+          <input type="range" min="6" max="60" step="6" value="24" id="emiTenure" oninput="calcEMI()">
+          <span class="emi-val" id="emiTenureVal">24 mo</span>
+        </div>
+      </div>
+      <div class="emi-field">
+        <label>Interest Rate (% p.a.)</label>
+        <div class="emi-field-row">
+          <input type="range" min="6" max="20" step="0.5" value="10" id="emiRate" oninput="calcEMI()">
+          <span class="emi-val" id="emiRateVal">10%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal">
+      <div class="emi-result">
+        <div class="emi-result-label">Monthly EMI</div>
+        <div class="emi-result-num" id="emiNum">₹3,226</div>
+        <div class="emi-breakdown">
+          <div class="emi-bd-item">
+            <div class="emi-bd-label">Loan Amount</div>
+            <div class="emi-bd-val" id="bdLoan">₹70,000</div>
+          </div>
+          <div class="emi-bd-item">
+            <div class="emi-bd-label">Total Interest</div>
+            <div class="emi-bd-val" id="bdInterest">₹7,416</div>
+          </div>
+          <div class="emi-bd-item">
+            <div class="emi-bd-label">Total Payable</div>
+            <div class="emi-bd-val" id="bdTotal">₹77,416</div>
+          </div>
+          <div class="emi-bd-item">
+            <div class="emi-bd-label">Interest %</div>
+            <div class="emi-bd-val" id="bdPct">10.6%</div>
+          </div>
+        </div>
+        <div class="emi-donut-wrap">
+          <svg width="140" height="140" viewBox="0 0 140 140" id="donutSvg">
+            <circle cx="70" cy="70" r="54" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="16"/>
+            <circle cx="70" cy="70" r="54" fill="none" stroke="var(--gold)" stroke-width="16"
+              stroke-dasharray="339.3" stroke-dashoffset="0" stroke-linecap="round"
+              transform="rotate(-90 70 70)" id="donutPrincipal"/>
+            <circle cx="70" cy="70" r="54" fill="none" stroke="rgba(224,58,47,0.7)" stroke-width="16"
+              stroke-dasharray="339.3" stroke-dashoffset="339.3" stroke-linecap="round"
+              transform="rotate(-90 70 70)" id="donutInterest"/>
+          </svg>
+          <div class="emi-donut-center">
+            <div class="dc-label">Interest</div>
+            <div class="dc-pct" id="dcPct">10.6%</div>
+          </div>
+        </div>
+        <a href="https://wa.me/919686450179?text=Hi%2C%20I%20want%20to%20enquire%20about%20bike%20loan%20options" target="_blank" class="btn btn-wa emi-wa-btn">💬 Get Loan Quote on WhatsApp</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY US -->
+<section id="why">
+  <div class="reveal">
+    <p class="section-tag">Why Choose Us</p>
+    <h2 class="section-h">LOCAL TRUST.<br/><span style="color:var(--gold)">REAL VALUE.</span></h2>
+  </div>
+  <div class="why-grid">
+    <div class="why-left reveal">
+      <div class="why-big-num">10+</div>
+      <p class="why-big-sub">Years of serving the Bethamangala community. Hundreds of happy riders on the road, and counting.</p>
+      <div style="margin-top:2rem;">
+        <a href="https://wa.me/919686450179" target="_blank" class="btn btn-gold">Talk to Us →</a>
+      </div>
+    </div>
+    <div class="why-features reveal">
+      <div class="feature-row">
+        <div class="feature-num">01</div>
+        <div class="feature-body">
+          <h4>Honest Pricing</h4>
+          <p>No hidden charges. What you see is what you pay — always. We give you the full breakdown before you sign anything.</p>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-num">02</div>
+        <div class="feature-body">
+          <h4>Loan Assistance</h4>
+          <p>Quick approvals with low EMIs. We handle the full paperwork with leading banks & NBFCs so you don't have to stress.</p>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-num">03</div>
+        <div class="feature-body">
+          <h4>Same-Day Insurance</h4>
+          <p>Get insured the same day you buy. Comprehensive & third-party plans available from trusted insurers.</p>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-num">04</div>
+        <div class="feature-body">
+          <h4>Full Documentation</h4>
+          <p>RC registration, insurance, and all paperwork handled end-to-end by our experienced team.</p>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-num">05</div>
+        <div class="feature-body">
+          <h4>Free Test Rides</h4>
+          <p>No booking fee, no pressure. Take any bike for a spin before you decide. Your comfort matters to us.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="reviews">
+  <div class="reveal">
+    <p class="section-tag">Customer Reviews</p>
+    <h2 class="section-h">WHAT RIDERS<br/>SAY ABOUT US</h2>
+  </div>
+  <div class="reviews-grid reveal">
+    <div class="review-card">
+      <div class="review-stars">★★★★★</div>
+      <p class="review-text">Got my Honda Activa from Vijaya Motors. The process was smooth, no hidden charges. They handled everything from loan to insurance. Very happy!</p>
+      <div class="review-author">
+        <div class="review-avatar">RK</div>
+        <div>
+          <div class="review-name">Raju Kumar</div>
+          <div class="review-loc">Bethamangala</div>
+        </div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="review-stars">★★★★★</div>
+      <p class="review-text">Best showroom near KGS. Staff was very helpful and patient. Got Hero Splendor at a great price with easy EMI. Highly recommended to everyone.</p>
+      <div class="review-author">
+        <div class="review-avatar">SP</div>
+        <div>
+          <div class="review-name">Suresh Patil</div>
+          <div class="review-loc">Near Bethamangala</div>
+        </div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="review-stars">★★★★★</div>
+      <p class="review-text">Bought a second-hand bike here. It was fully checked, all documents were proper. Good value for money. Will definitely come back for my next bike.</p>
+      <div class="review-author">
+        <div class="review-avatar">MN</div>
+        <div>
+          <div class="review-name">Manjunath N.</div>
+          <div class="review-loc">Bethamangala</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="reveal">
+    <p class="section-tag">Visit or Contact</p>
+    <h2 class="section-h">FIND US IN<br/>BETHAMANGALA</h2>
+  </div>
+  <div class="contact-grid">
+    <div class="reveal">
+      <div class="contact-info-grid">
+        <div class="info-tile">
+          <div class="info-tile-label">Address</div>
+          <div class="info-tile-val">Vijaya Motors,<br/>Near KGS,<br/>Bethamangala, Karnataka</div>
+        </div>
+        <div class="info-tile">
+          <div class="info-tile-label">Hours</div>
+          <div class="info-tile-val">Mon – Sat: 9 AM – 7 PM<br/>Sunday: 10 AM – 4 PM</div>
+        </div>
+        <div class="info-tile" style="grid-column: 1 / -1">
+          <div class="info-tile-label">Phone & WhatsApp</div>
+          <div class="info-tile-val">
+            <div class="phone-links">
+              <a href="tel:+919449668895">📞 +91 94496 68895</a>
+              <a href="tel:+919686450179">📞 +91 96864 50179</a>
+              <a href="tel:+919449749697">📞 +91 94497 49697</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="map-embed">
+        <div class="map-embed-content">
+          <div style="font-size:1.8rem;margin-bottom:0.5rem">📍</div>
+          <div style="font-weight:500;margin-bottom:0.4rem">Vijaya Motors, Near KGS</div>
+          <div style="color:var(--muted);font-size:0.78rem;margin-bottom:0.8rem">Bethamangala, Karnataka</div>
+          <a href="https://maps.app.goo.gl/RHbbSN9rhEN1RA7d8" target="_blank">Open in Google Maps →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="cta-panel reveal">
+      <h3>BOOK A FREE<br/>TEST RIDE</h3>
+      <p>Interested in any bike? Message us on WhatsApp or give us a call. We'll arrange a test ride at your convenience — no booking fee, no pressure, no obligation.</p>
+      <div class="cta-btn-stack">
+        <a href="https://wa.me/919686450179?text=Hi%2C%20I%20want%20to%20book%20a%20test%20ride" target="_blank" class="btn btn-wa" style="justify-content:center;">💬 WhatsApp for Test Ride</a>
+        <a href="tel:+919449668895" class="btn btn-ghost btn-sm" style="justify-content:center;">📞 +91 94496 68895</a>
+        <a href="tel:+919686450179" class="btn btn-ghost btn-sm" style="justify-content:center;">📞 +91 96864 50179</a>
+        <a href="tel:+919449749697" class="btn btn-ghost btn-sm" style="justify-content:center;">📞 +91 94497 49697</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <a href="#" class="footer-logo">VIJAYA <span>MOTORS</span></a>
+      <p class="footer-tagline">Bethamangala's trusted two-wheeler destination. Quality bikes, honest pricing, zero hassle.</p>
+      <div style="margin-top:1.5rem;display:flex;gap:0.8rem;">
+        <a href="https://wa.me/919686450179" target="_blank" class="btn btn-wa btn-sm" style="padding:0.5rem 1rem;font-size:0.75rem;">💬 WhatsApp</a>
+        <a href="tel:+919449668895" class="btn btn-ghost btn-sm" style="padding:0.5rem 1rem;font-size:0.75rem;">📞 Call</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Navigate</h4>
+      <div class="footer-links">
+        <a href="#vehicles">Our Bikes</a>
+        <a href="#emi">EMI Calculator</a>
+        <a href="#why">Why Us</a>
+        <a href="#reviews">Reviews</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Brands</h4>
+      <div class="footer-links">
+        <a href="#">Honda</a>
+        <a href="#">Hero</a>
+        <a href="#">TVS (Order)</a>
+        <a href="#">Bajaj (Order)</a>
+        <a href="#">Royal Enfield (Order)</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Services</h4>
+      <div class="footer-links">
+        <a href="#emi">Bike Loans</a>
+        <a href="#">Bike Insurance</a>
+        <a href="#">RC Registration</a>
+        <a href="#">Pre-Owned Bikes</a>
+        <a href="#">Free Test Rides</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div>© 2025 Vijaya Motors, Bethamangala. All rights reserved.</div>
+    <div>📍 Near KGS, Bethamangala, Karnataka</div>
+    <div>Built with ❤️ for the local community</div>
+  </div>
+</footer>
+
+<!-- FLOATING BUTTONS -->
+<div class="float-btns">
+  <a href="https://wa.me/919686450179?text=Hi%2C%20I%20am%20interested%20in%20a%20bike" target="_blank" class="float-btn fb-wa" title="WhatsApp Us">💬</a>
+  <a href="tel:+919449668895" class="float-btn fb-call" title="Call Us">📞</a>
+</div>
+
+<!-- SCROLL TO TOP -->
+<a href="#" id="stt" title="Back to top">↑</a>
+
+<script>
+  // Loader
+  window.addEventListener('load', () => {
+    setTimeout(() => document.getElementById('loader').classList.add('hidden'), 1600);
+  });
+
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  function animCursor() {
+    if (cursor) { cursor.style.left = mx - 5 + 'px'; cursor.style.top = my - 5 + 'px'; }
+    rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
+    if (ring) { ring.style.left = rx - 18 + 'px'; ring.style.top = ry - 18 + 'px'; }
+    requestAnimationFrame(animCursor);
+  }
+  animCursor();
+
+  // Nav scroll
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+    document.getElementById('stt').classList.toggle('visible', window.scrollY > 400);
+  });
+
+  // Mobile menu
+  document.getElementById('hamburger').onclick = () => document.getElementById('mobileMenu').classList.add('open');
+  document.getElementById('mobileClose').onclick = () => document.getElementById('mobileMenu').classList.remove('open');
+  function closeMobile() { document.getElementById('mobileMenu').classList.remove('open'); }
+
+  // Scroll reveal
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+  }, { threshold: 0.08 });
+  revealEls.forEach(el => io.observe(el));
+
+  // Counter animation
+  function animateCounter(el, target, suffix) {
+    let start = 0;
+    const step = target / 60;
+    const timer = setInterval(() => {
+      start += step;
+      if (start >= target) { start = target; clearInterval(timer); }
+      el.textContent = Math.floor(start) + (suffix || '');
+    }, 20);
+  }
+  const counterObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const el = e.target;
+        const count = parseInt(el.dataset.count);
+        const suffix = count === 98 ? '%' : count === 6 ? '' : '+';
+        animateCounter(el, count, suffix);
+        counterObs.unobserve(el);
+      }
+    });
+  }, { threshold: 0.5 });
+  document.querySelectorAll('[data-count]').forEach(el => counterObs.observe(el));
+
+  // Vehicle card filter
+  function filterCards(cat, btn) {
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.v-card').forEach(card => {
+      const show = cat === 'all' || card.dataset.cat === cat;
+      card.style.display = show ? '' : 'none';
+    });
+  }
+
+  // EMI Calculator
+  function calcEMI() {
+    const price = +document.getElementById('emiPrice').value;
+    const down = +document.getElementById('emiDown').value;
+    const tenure = +document.getElementById('emiTenure').value;
+    const rate = +document.getElementById('emiRate').value;
+
+    document.getElementById('emiPriceVal').textContent = '₹' + price.toLocaleString('en-IN');
+    document.getElementById('emiDownVal').textContent = '₹' + down.toLocaleString('en-IN');
+    document.getElementById('emiTenureVal').textContent = tenure + ' mo';
+    document.getElementById('emiRateVal').textContent = rate + '%';
+
+    const loan = Math.max(0, price - down);
+    const r = rate / 12 / 100;
+    let emi;
+    if (r === 0) { emi = loan / tenure; }
+    else { emi = (loan * r * Math.pow(1 + r, tenure)) / (Math.pow(1 + r, tenure) - 1); }
+
+    const total = emi * tenure;
+    const interest = total - loan;
+    const intPct = loan > 0 ? (interest / loan * 100) : 0;
+    const circumference = 2 * Math.PI * 54;
+    const principalFrac = loan / (loan + interest);
+    const interestFrac = 1 - principalFrac;
+
+    document.getElementById('emiNum').textContent = '₹' + Math.round(emi).toLocaleString('en-IN');
+    document.getElementById('bdLoan').textContent = '₹' + Math.round(loan).toLocaleString('en-IN');
+    document.getElementById('bdInterest').textContent = '₹' + Math.round(interest).toLocaleString('en-IN');
+    document.getElementById('bdTotal').textContent = '₹' + Math.round(total).toLocaleString('en-IN');
+    document.getElementById('bdPct').textContent = intPct.toFixed(1) + '%';
+    document.getElementById('dcPct').textContent = intPct.toFixed(1) + '%';
+
+    const dp = document.getElementById('donutPrincipal');
+    const di = document.getElementById('donutInterest');
+    const pLen = circumference * principalFrac;
+    const iLen = circumference * interestFrac;
+    dp.setAttribute('stroke-dasharray', circumference);
+    dp.setAttribute('stroke-dashoffset', circumference - pLen);
+    di.setAttribute('stroke-dasharray', circumference);
+    di.setAttribute('stroke-dashoffset', circumference - iLen);
+    di.setAttribute('transform', `rotate(${-90 + 360 * principalFrac} 70 70)`);
+  }
+  calcEMI();
+</script>
+</body>
+</html>
